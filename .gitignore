@@ -1,4 +1,5 @@
 # Compiled Object files
+game
 *.slo
 *.lo
 *.o
@@ -11,3 +12,14 @@
 *.lai
 *.la
 *.a
+
+# CMake files
+build/
+Makefile
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# Swapfiles
+.*.swp
+.*.swo
