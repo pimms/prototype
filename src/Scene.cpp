@@ -75,8 +75,6 @@ void Scene::AddGameObject(GameObject *go)
 
 void Scene::RemoveGameObject(GameObject *go)
 {
-	printf("COUNT: %lu\n", _objects.size());
-
 	list<GameObject*>::iterator it = _objects.begin();
 	for (; it!=_objects.end(); it++) {
 		if (*it == go) {

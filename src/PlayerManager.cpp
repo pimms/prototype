@@ -106,9 +106,11 @@ void TimeThread::DecrementPlayback()
 void TimeThread::Record()
 {
 	TimeNode *node = new TimeNode(_player);
+
 	_tail->next = node;
 	node->prev = _tail;
 	_tail = node;
+
 	_current = _tail;
 }
 
@@ -138,6 +140,15 @@ TimeThread* TimeThread::Reunite(TimeThread *t1, TimeThread *t2,
 	}
 
 	TimeThread *t = new TimeThread(t1->_head->parent, scene);
+
+	TimeNode *head = t1->_head->parent;
+	TimeNode *tail = head;
+	while (head->prev) { head = head->prev; }
+
+	t->_head = head;
+	t->_tail = tail;
+	t->_current = tail;
+
 	return t;
 }
 
@@ -182,6 +193,11 @@ void TimeThread::DisableInput()
 	_player->SetInputAvailable(false);
 }
 
+bool TimeThread::IsRootThread()
+{
+	return !_sibling;
+}
+
 
 
 /*
@@ -223,13 +239,13 @@ void PlayerManager::Update()
 	for (; it != _threads.end(); it++) {
 		TimeThread *thread = *it;
 
-		if (thread == _playThread) {
-			thread->Record();
-		} else if (_direction == FORWARD) {
-			if (thread->NeedExpand()) {
+		 if (_direction == FORWARD) {
+			if (thread == _playThread) {
+				thread->Record();
+			} else if (thread->NeedExpand()) {
 				TimeThread *t1, *t2;
 				thread->Expand(t1, t2, _scene);
-				_threads.remove(thread);
+				it = EraseThread(thread);
 				_threads.push_back(t1);
 				_threads.push_back(t2);
 				delete thread;
@@ -238,21 +254,25 @@ void PlayerManager::Update()
 			}
 		} else if (_direction == BACKWARD) {
 			if (thread->NeedReunion()) {
-				TimeThread *t1, *t2;
-				t1 = thread;
-				t2 = t2->GetSibling();
-				thread = TimeThread::Reunite(t1, t2, _scene);
-				_threads.push_back(thread);
-
-				if (_playThread == t1 || _playThread == t2) {
-					_playThread = thread;
+				if (thread->IsRootThread()) {
+					_direction = FORWARD;
 					_playThread->EnableInput();
-				}
+				} else {
+					TimeThread *t1, *t2;
+					t1 = thread;
+					t2 = thread->GetSibling();
+					thread = TimeThread::Reunite(t1, t2, _scene);
+					_threads.push_back(thread);
 
-				it = EraseThread(t1);
-				it = EraseThread(t2);
-				delete t1;
-				delete t2;
+					if (_playThread == t1 || _playThread == t2) {
+						_playThread = thread;
+					}
+
+					it = EraseThread(t1);
+					it = EraseThread(t2);
+					delete t1;
+					delete t2;
+				}
 			} else {
 				thread->DecrementPlayback();
 			}
@@ -283,6 +303,6 @@ list<TimeThread*>::iterator PlayerManager::EraseThread(TimeThread *t)
 			return _threads.erase(it);
 		}
 	}
-	
+
 	return _threads.end();
 }

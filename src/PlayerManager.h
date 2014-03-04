@@ -49,6 +49,8 @@ public:
 	void EnableInput();
 	void DisableInput();
 
+	bool IsRootThread();
+
 private:
 	void CreatePlayer(Scene *scene);
 
