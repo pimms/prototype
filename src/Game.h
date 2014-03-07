@@ -1,7 +1,7 @@
 #pragma once
 
-
 class Scene;
+class World;
 class Input;
 class Window;
 class ResourceManager;
@@ -14,6 +14,7 @@ public:
 	
 	void SetScene(Scene *scene);
 	Scene* GetScene() const;
+	World* GetWorld() const;
 
 	ResourceManager* GetResourceManager();
 	const Input* GetInput() const;
@@ -25,6 +26,7 @@ private:
 	bool Init();
 
 	void SceneTransition();
+	void InitScene();
 
 	int MainLoop();
 	void HandleEvents();
@@ -34,6 +36,7 @@ private:
 	ResourceManager *_resmgr;
 	Input *_input;
 
+	World *_world;
 	Scene *_scene;
 	Scene *_nextScene;
 };

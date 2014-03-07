@@ -17,7 +17,7 @@ public:
 	void Draw(Window *window);
 
 	sf::Vector2f GetPosition() const;
-	void SetPosition(sf::Vector2f v);
+	virtual void SetPosition(sf::Vector2f v);
 
 	sf::Vector2f GetScale() const;
 	void SetScale(sf::Vector2f scale);

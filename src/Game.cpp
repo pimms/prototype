@@ -3,6 +3,7 @@
 #include "Window.h"
 #include "ResourceManager.h"
 #include "Input.h"
+#include "World.h"
 
 
 Game::Game()
@@ -10,6 +11,7 @@ Game::Game()
 		_window(NULL),
 		_resmgr(NULL),
 		_input(NULL),
+		_world(NULL),
 		_scene(NULL),
 		_nextScene(NULL)
 {
@@ -29,6 +31,14 @@ Game::~Game()
 	if (_input) {
 		delete _input;
 	}
+
+	if (_scene) {
+		delete _scene;
+	}
+
+	if (_world) {
+		delete _world;
+	}
 }
 
 
@@ -44,6 +54,11 @@ void Game::SetScene(Scene *scene)
 Scene* Game::GetScene() const 
 {
 	return _scene;
+}
+
+World* Game::GetWorld() const
+{
+	return _world;
 }
 
 
@@ -98,10 +113,22 @@ void Game::SceneTransition()
 			|| (_nextScene && _scene->ReadyToDie())) {
 		delete _scene;
 		_scene = _nextScene;
-		_scene->LoadResources();
 		_nextScene = NULL;
+		InitScene();
 	}
 }
+
+void Game::InitScene() 
+{
+	_scene->LoadResources();
+
+	if (_world) {
+		delete _world;
+	}
+
+	_world = new World(_scene);
+}
+
 
 
 int Game::MainLoop() 
