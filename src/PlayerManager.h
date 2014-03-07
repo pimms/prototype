@@ -27,6 +27,8 @@ public:
 
 class TimeThread {
 public:
+	static bool AreSiblings(TimeThread *t1, TimeThread *t2);
+
 	TimeThread(TimeNode *time, Scene *scene);
 	~TimeThread();
 
@@ -50,11 +52,21 @@ public:
 	void DisableInput();
 
 	bool IsRootThread();
+	TimeNode* GetHead();
+
+	void AssertSaneThreadStatus();
 
 private:
 	void CreatePlayer(Scene *scene);
 
-	TimeThread *_sibling;
+	void Fork(TimeThread *&t1, TimeNode *n1,  
+			  TimeThread *&t2, TimeNode *n2, Scene *scene);
+
+	/* A list of the previous split-points upwards in the 
+	 * tree. Sibling threads can be identified as the back of
+	 * their _splits-list will be identical.
+	 */
+	list<TimeNode*> _splits;
 
 	TimeNode *_head;
 	TimeNode *_tail;
@@ -81,10 +93,21 @@ public:
 	 */
 	void Update();
 
-	void SplitThread();
 
 private:
+	void RestartAllThreads();
+
+	void SplitThread();
+	void SetTimeDirection(Direction dir);
+
+	TimeThread* GetSibling(TimeThread *thread) const;
+
 	list<TimeThread*>::iterator EraseThread(TimeThread *thread);
+	list<TimeThread*>::iterator ExpandThread(TimeThread *thread);
+	list<TimeThread*>::iterator ReuniteThread(TimeThread *thread);
+
+	/* Delete the three rooted in "tree". */
+	void DeleteSubtree(TimeNode *tree);
 
 	Scene *_scene;
 
